@@ -1,12 +1,18 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
+	"github.com/julietteengel/fizzbuzz-api/internal/config"
 	"github.com/julietteengel/fizzbuzz-api/internal/controller"
 	"github.com/julietteengel/fizzbuzz-api/internal/service"
 )

@@ -1,6 +1,10 @@
 package errors
 
-import "net/http"
+import (
+	"net/http"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
+)
 
 type Translation struct {
 	Fr string `json:"fr"`
@@ -15,6 +19,32 @@ type ControllerError struct {
 
 func (e ControllerError) Error() string {
 	return e.Translation.En
+}
+
+// WrapErrorHTTP logs the original error and returns a properly formatted HTTP error
+func WrapErrorHTTP(c echo.Context, originalErr error, controllerError ControllerError) error {
+	if originalErr != nil {
+		log.Errorf("Error %s: %v", controllerError.Name, originalErr)
+	}
+	
+	lang := c.Request().Header.Get("Accept-Language")
+	message := controllerError.Translation.En
+	if lang == "fr" || lang == "fr-FR" {
+		message = controllerError.Translation.Fr
+	}
+	
+	return echo.NewHTTPError(controllerError.HttpErrorCode, echo.Map{
+		"error":   controllerError.Name,
+		"message": message,
+	})
+}
+
+// GetTranslation returns the translated message based on locale
+func GetTranslation(err ControllerError, locale string) string {
+	if locale == "fr" || locale == "fr-FR" {
+		return err.Translation.Fr
+	}
+	return err.Translation.En
 }
 
 var (
