@@ -40,6 +40,8 @@ Health check endpoint.
 - **Database**: PostgreSQL with GORM ORM
 - **Dependency Injection**: Uber FX
 - **Configuration**: Viper for environment-based config
+- **Testing**: Testify for assertions and mocking
+- **Mock Generation**: Mockery v3 for interface mocks
 - **Containerization**: Docker with multi-stage builds
 
 ## Project Structure
@@ -50,13 +52,15 @@ Health check endpoint.
 │   └── server/
 │       └── main.go
 ├── internal/
-│   ├── controller/
-│   ├── service/
-│   ├── repository/
-│   ├── model/
-│   └── middleware/
+│   ├── controller/          # HTTP handlers and tests
+│   ├── service/             # Business logic and tests
+│   ├── repository/          # Data access layer and tests
+│   ├── model/               # Domain models
+│   ├── mocks/               # Generated interface mocks
+│   └── middleware/          # HTTP middleware
 ├── pkg/
 │   └── validator/
+├── .mockery.yaml            # Mock generation configuration
 ├── go.mod
 ├── go.sum
 ├── Dockerfile
@@ -88,6 +92,9 @@ go run cmd/server/main.go
 ```bash
 # Run all tests
 make test
+
+# Generate mocks from interfaces
+make generate-mocks
 
 # Run tests with coverage
 make test-coverage
