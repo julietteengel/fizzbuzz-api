@@ -6,12 +6,21 @@ import (
 	"strconv"
 
 	"github.com/julietteengel/fizzbuzz-api/internal/model"
+	"github.com/julietteengel/fizzbuzz-api/internal/repository"
 )
 
-type fizzBuzzService struct{}
+type IFizzBuzzService interface {
+	GenerateFizzBuzz(ctx context.Context, request model.FizzBuzzRequest) (*model.FizzBuzzResponse, error)
+}
 
-func NewFizzBuzzService() IFizzBuzzService {
-	return &fizzBuzzService{}
+type fizzBuzzService struct {
+	statsRepo repository.IStatsRepository
+}
+
+func NewFizzBuzzService(statsRepo repository.IStatsRepository) IFizzBuzzService {
+	return &fizzBuzzService{
+		statsRepo: statsRepo,
+	}
 }
 
 func (s *fizzBuzzService) GenerateFizzBuzz(ctx context.Context, request model.FizzBuzzRequest) (*model.FizzBuzzResponse, error) {
@@ -48,6 +57,13 @@ func (s *fizzBuzzService) GenerateFizzBuzz(ctx context.Context, request model.Fi
 
 		result = append(result, value)
 	}
+
+	// Record request for statistics (async to not block response)
+	go func() {
+		if err := s.statsRepo.RecordRequest(context.Background(), request); err != nil {
+			// Log error but don't fail the request
+		}
+	}()
 
 	return &model.FizzBuzzResponse{
 		Result: result,

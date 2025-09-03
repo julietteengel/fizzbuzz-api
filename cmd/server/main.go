@@ -12,6 +12,7 @@ import (
 	"github.com/julietteengel/fizzbuzz-api/internal/config"
 	"github.com/julietteengel/fizzbuzz-api/internal/controller"
 	"github.com/julietteengel/fizzbuzz-api/internal/database"
+	"github.com/julietteengel/fizzbuzz-api/internal/repository"
 	"github.com/julietteengel/fizzbuzz-api/internal/service"
 )
 
@@ -20,8 +21,11 @@ func main() {
 		fx.Provide(
 			config.Load,
 			database.NewGormDB,
+			repository.NewStatsRepository,
 			service.NewFizzBuzzService,
+			service.NewStatsService,
 			controller.NewFizzBuzzController,
+			controller.NewStatsController,
 			newEcho,
 		),
 		fx.Invoke(setupRoutes),
@@ -45,10 +49,12 @@ func setupRoutes(
 	e *echo.Echo,
 	cfg *config.Config,
 	fizzBuzzController *controller.FizzBuzzController,
+	statsController *controller.StatsController,
 ) {
 	// API Routes
 	api := e.Group("/api/v1")
 	api.POST("/fizzbuzz", fizzBuzzController.GenerateFizzBuzz)
+	api.GET("/stats", statsController.GetStats)
 	
 	// Health check (outside API group)
 	e.GET("/health", fizzBuzzController.HealthCheck)
