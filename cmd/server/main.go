@@ -11,6 +11,7 @@ import (
 
 	"github.com/julietteengel/fizzbuzz-api/internal/config"
 	"github.com/julietteengel/fizzbuzz-api/internal/controller"
+	"github.com/julietteengel/fizzbuzz-api/internal/database"
 	"github.com/julietteengel/fizzbuzz-api/internal/service"
 )
 
@@ -18,6 +19,7 @@ func main() {
 	fx.New(
 		fx.Provide(
 			config.Load,
+			database.NewGormDB,
 			service.NewFizzBuzzService,
 			controller.NewFizzBuzzController,
 			newEcho,

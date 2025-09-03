@@ -5,8 +5,9 @@ import (
 )
 
 type Config struct {
-	Server ServerConfig
-	App    AppConfig
+	Server   ServerConfig
+	App      AppConfig
+	Database DatabaseConfig
 }
 
 type ServerConfig struct {
@@ -18,11 +19,18 @@ type AppConfig struct {
 	MaxLimit    int
 }
 
+type DatabaseConfig struct {
+	URL          string
+	StatsStorage string
+}
+
 func Load() (*Config, error) {
 	// Set defaults
 	viper.SetDefault("PORT", "8080")
 	viper.SetDefault("ENVIRONMENT", "development")
 	viper.SetDefault("MAX_LIMIT", 10000)
+	viper.SetDefault("DATABASE_URL", "postgres://user:password@localhost:5432/fizzbuzz_db?sslmode=disable")
+	viper.SetDefault("STATS_STORAGE", "memory")
 
 	// Bind environment variables
 	viper.AutomaticEnv()
@@ -35,6 +43,10 @@ func Load() (*Config, error) {
 		App: AppConfig{
 			Environment: viper.GetString("ENVIRONMENT"),
 			MaxLimit:    viper.GetInt("MAX_LIMIT"),
+		},
+		Database: DatabaseConfig{
+			URL:          viper.GetString("DATABASE_URL"),
+			StatsStorage: viper.GetString("STATS_STORAGE"),
 		},
 	}
 

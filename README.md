@@ -37,10 +37,10 @@ Health check endpoint.
 
 - **Framework**: Echo v4
 - **Architecture**: Clean Architecture (Controller → Service → Repository)
-- **Testing**: testify/suite and testify/mock
-- **Logging**: Structured logging with zerolog
-- **Validation**: Custom validators
+- **Database**: PostgreSQL with GORM ORM
+- **Dependency Injection**: Uber FX
 - **Configuration**: Viper for environment-based config
+- **Containerization**: Docker with multi-stage builds
 
 ## Project Structure
 
@@ -111,8 +111,45 @@ make docker-build
 The application can be configured via environment variables:
 
 - `PORT`: Server port (default: 8080)
-- `LOG_LEVEL`: Logging level (default: info)
-- `ENV`: Environment (development/production)
+- `ENVIRONMENT`: Environment (development/production, default: development)
+- `MAX_LIMIT`: Maximum limit for FizzBuzz sequences (default: 10000)
+- `DATABASE_URL`: PostgreSQL connection string (default: postgres://user:password@localhost:5432/fizzbuzz_db?sslmode=disable)
+- `STATS_STORAGE`: Storage backend for statistics (memory/postgres, default: memory)
+
+## Database Setup
+
+### PostgreSQL
+
+The application supports PostgreSQL for persistent statistics storage:
+
+1. **Using existing PostgreSQL instance:**
+   ```bash
+   # Create database
+   createdb fizzbuzz_db
+   
+   # Set environment variables
+   export DATABASE_URL="postgres://user:password@localhost:5432/fizzbuzz_db?sslmode=disable"
+   export STATS_STORAGE="postgres"
+   ```
+
+2. **Using Docker Compose:**
+   ```bash
+   # Start PostgreSQL
+   docker compose up -d postgres
+   
+   # Database will be automatically created with credentials:
+   # - Host: localhost:5432
+   # - User: postgres
+   # - Password: postgres
+   # - Database: fizzbuzz_db
+   ```
+
+3. **TablePlus Connection:**
+   - Host: `localhost`
+   - Port: `5432`
+   - User: `user`
+   - Password: `password`
+   - Database: `fizzbuzz_db`
 
 ## Contributing
 

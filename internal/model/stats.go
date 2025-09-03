@@ -2,34 +2,21 @@ package model
 
 import "time"
 
+// StatsEntry represents a fizzbuzz request statistics record in the database
 type StatsEntry struct {
-	Parameters FizzBuzzRequest `json:"parameters"`
-	HitCount   int64           `json:"hit_count"`
-	LastAccess time.Time       `json:"last_access"`
-	FirstSeen  time.Time       `json:"first_seen"`
+	ID        uint      `gorm:"primaryKey" json:"-"`
+	Int1      int       `gorm:"not null;uniqueIndex:idx_params" json:"-"`
+	Int2      int       `gorm:"not null;uniqueIndex:idx_params" json:"-"`
+	Limit     int       `gorm:"not null;uniqueIndex:idx_params" json:"-"`
+	Str1      string    `gorm:"not null;size:100;uniqueIndex:idx_params" json:"-"`
+	Str2      string    `gorm:"not null;size:100;uniqueIndex:idx_params" json:"-"`
+	HitCount  int64     `gorm:"not null;default:0" json:"hit_count"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
 }
 
+// StatsResponse represents the API response for the most frequent request
 type StatsResponse struct {
-	MostFrequent *StatsEntry `json:"most_frequent,omitempty"`
-	Message      string      `json:"message,omitempty"`
-}
-
-type AllStatsResponse struct {
-	Stats      []StatsEntry `json:"stats"`
-	TotalCount int          `json:"total_count"`
-	UpdatedAt  time.Time    `json:"updated_at"`
-}
-
-type HealthCheckResponse struct {
-	Status    string    `json:"status"`
-	Version   string    `json:"version,omitempty"`
-	Timestamp time.Time `json:"timestamp"`
-	Uptime    string    `json:"uptime,omitempty"`
-}
-
-type RequestMetadata struct {
-	RequestID  string    `json:"request_id"`
-	ClientIP   string    `json:"client_ip"`
-	UserAgent  string    `json:"user_agent"`
-	ReceivedAt time.Time `json:"received_at"`
+	Request  FizzBuzzRequest `json:"request"`
+	HitCount int64           `json:"hit_count"`
 }

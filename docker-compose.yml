@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fizzbuzz_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   fizzbuzz-api:
     build: .
     ports:
@@ -9,6 +21,10 @@ services:
       - PORT=8080
       - ENVIRONMENT=production
       - MAX_LIMIT=10000
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/fizzbuzz_db?sslmode=disable
+      - STATS_STORAGE=postgres
+    depends_on:
+      - postgres
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
@@ -16,3 +32,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+volumes:
+  postgres_data:
