@@ -33,10 +33,7 @@ func WrapErrorHTTP(c echo.Context, originalErr error, controllerError Controller
 		message = controllerError.Translation.Fr
 	}
 
-	return echo.NewHTTPError(controllerError.HttpErrorCode, echo.Map{
-		"error":   controllerError.Name,
-		"message": message,
-	})
+	return echo.NewHTTPError(controllerError.HttpErrorCode, message)
 }
 
 var (

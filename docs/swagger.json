@@ -1,0 +1,199 @@
+{
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "A production-ready FizzBuzz REST API server built with Go and Echo framework following clean architecture principles.",
+        "title": "FizzBuzz REST API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "email": "juliette.engel@skema.edu"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/api/v1/fizzbuzz": {
+            "post": {
+                "description": "Generates a customized FizzBuzz sequence based on provided parameters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "fizzbuzz"
+                ],
+                "summary": "Generate FizzBuzz sequence",
+                "parameters": [
+                    {
+                        "description": "FizzBuzz parameters",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_julietteengel_fizzbuzz-api_internal_model.FizzBuzzRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_julietteengel_fizzbuzz-api_internal_model.FizzBuzzResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error message (translated)",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Service error message (translated)",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/stats": {
+            "get": {
+                "description": "Returns statistics about the most frequently requested FizzBuzz parameters",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stats"
+                ],
+                "summary": "Get FizzBuzz statistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_julietteengel_fizzbuzz-api_internal_model.StatsResponse"
+                        }
+                    },
+                    "204": {
+                        "description": "No statistics available yet"
+                    },
+                    "500": {
+                        "description": "Service error message (translated)",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Returns the health status and timestamp of the API",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Health check endpoint",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_julietteengel_fizzbuzz-api_internal_model.HealthCheckResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_julietteengel_fizzbuzz-api_internal_model.FizzBuzzRequest": {
+            "type": "object",
+            "required": [
+                "int1",
+                "int2",
+                "limit",
+                "str1",
+                "str2"
+            ],
+            "properties": {
+                "int1": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "int2": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "limit": {
+                    "type": "integer",
+                    "maximum": 10000,
+                    "minimum": 1
+                },
+                "str1": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "str2": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                }
+            }
+        },
+        "github_com_julietteengel_fizzbuzz-api_internal_model.FizzBuzzResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_julietteengel_fizzbuzz-api_internal_model.HealthCheckResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "uptime": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_julietteengel_fizzbuzz-api_internal_model.StatsResponse": {
+            "type": "object",
+            "properties": {
+                "hit_count": {
+                    "type": "integer"
+                },
+                "request": {
+                    "$ref": "#/definitions/github_com_julietteengel_fizzbuzz-api_internal_model.FizzBuzzRequest"
+                }
+            }
+        }
+    }
+}

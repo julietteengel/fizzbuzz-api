@@ -1,0 +1,137 @@
+basePath: /api/v1
+definitions:
+  github_com_julietteengel_fizzbuzz-api_internal_model.FizzBuzzRequest:
+    properties:
+      int1:
+        minimum: 1
+        type: integer
+      int2:
+        minimum: 1
+        type: integer
+      limit:
+        maximum: 10000
+        minimum: 1
+        type: integer
+      str1:
+        maxLength: 100
+        minLength: 1
+        type: string
+      str2:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+    - int1
+    - int2
+    - limit
+    - str1
+    - str2
+    type: object
+  github_com_julietteengel_fizzbuzz-api_internal_model.FizzBuzzResponse:
+    properties:
+      count:
+        type: integer
+      result:
+        items:
+          type: string
+        type: array
+    type: object
+  github_com_julietteengel_fizzbuzz-api_internal_model.HealthCheckResponse:
+    properties:
+      status:
+        type: string
+      timestamp:
+        type: string
+      uptime:
+        type: string
+      version:
+        type: string
+    type: object
+  github_com_julietteengel_fizzbuzz-api_internal_model.StatsResponse:
+    properties:
+      hit_count:
+        type: integer
+      request:
+        $ref: '#/definitions/github_com_julietteengel_fizzbuzz-api_internal_model.FizzBuzzRequest'
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: juliette.engel@skema.edu
+    name: API Support
+  description: A production-ready FizzBuzz REST API server built with Go and Echo
+    framework following clean architecture principles.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: FizzBuzz REST API
+  version: "1.0"
+paths:
+  /api/v1/fizzbuzz:
+    post:
+      consumes:
+      - application/json
+      description: Generates a customized FizzBuzz sequence based on provided parameters
+      parameters:
+      - description: FizzBuzz parameters
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_julietteengel_fizzbuzz-api_internal_model.FizzBuzzRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_julietteengel_fizzbuzz-api_internal_model.FizzBuzzResponse'
+        "400":
+          description: Validation error message (translated)
+          schema:
+            type: string
+        "500":
+          description: Service error message (translated)
+          schema:
+            type: string
+      summary: Generate FizzBuzz sequence
+      tags:
+      - fizzbuzz
+  /api/v1/stats:
+    get:
+      description: Returns statistics about the most frequently requested FizzBuzz
+        parameters
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_julietteengel_fizzbuzz-api_internal_model.StatsResponse'
+        "204":
+          description: No statistics available yet
+        "500":
+          description: Service error message (translated)
+          schema:
+            type: string
+      summary: Get FizzBuzz statistics
+      tags:
+      - stats
+  /health:
+    get:
+      description: Returns the health status and timestamp of the API
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_julietteengel_fizzbuzz-api_internal_model.HealthCheckResponse'
+      summary: Health check endpoint
+      tags:
+      - health
+schemes:
+- http
+- https
+swagger: "2.0"

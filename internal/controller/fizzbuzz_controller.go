@@ -21,6 +21,17 @@ func NewFizzBuzzController(service service.IFizzBuzzService) *FizzBuzzController
 	}
 }
 
+// GenerateFizzBuzz generates a FizzBuzz sequence with custom parameters.
+// @Summary Generate FizzBuzz sequence
+// @Description Generates a customized FizzBuzz sequence based on provided parameters
+// @Tags fizzbuzz
+// @Accept json
+// @Produce json
+// @Param request body model.FizzBuzzRequest true "FizzBuzz parameters"
+// @Success 200 {object} model.FizzBuzzResponse
+// @Failure 400 {string} string "Validation error message (translated)"
+// @Failure 500 {string} string "Service error message (translated)"
+// @Router /api/v1/fizzbuzz [post]
 func (c *FizzBuzzController) GenerateFizzBuzz(ctx echo.Context) error {
 	var request model.FizzBuzzRequest
 
@@ -58,6 +69,13 @@ func (c *FizzBuzzController) GenerateFizzBuzz(ctx echo.Context) error {
 }
 
 
+// HealthCheck returns the health status of the API.
+// @Summary Health check endpoint
+// @Description Returns the health status and timestamp of the API
+// @Tags health
+// @Produce json
+// @Success 200 {object} model.HealthCheckResponse
+// @Router /health [get]
 func (c *FizzBuzzController) HealthCheck(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, model.HealthCheckResponse{
 		Status:    "ok",

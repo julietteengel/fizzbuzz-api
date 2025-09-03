@@ -16,6 +16,18 @@ import (
 	"github.com/julietteengel/fizzbuzz-api/internal/service"
 )
 
+// @title FizzBuzz REST API
+// @version 1.0
+// @description A production-ready FizzBuzz REST API server built with Go and Echo framework following clean architecture principles.
+// @termsOfService http://swagger.io/terms/
+// @contact.name API Support
+// @contact.email juliette.engel@skema.edu
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+// @host localhost:8080
+// @BasePath /api/v1
+// @schemes http https
+
 func main() {
 	fx.New(
 		fx.Provide(

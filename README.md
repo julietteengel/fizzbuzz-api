@@ -96,6 +96,9 @@ make test
 # Generate mocks from interfaces
 make generate-mocks
 
+# Generate API documentation
+make generate-docs
+
 # Run tests with coverage
 make test-coverage
 

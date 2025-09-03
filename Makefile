@@ -106,6 +106,7 @@ install-tools: ## Install development tools
 	go install github.com/cosmtrek/air@latest
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	go install github.com/vektra/mockery/v2@latest
+	go install github.com/swaggo/swag/cmd/swag@latest
 
 generate-mocks: ## Generate mocks from interfaces
 	@echo "Generating mocks..."
@@ -113,5 +114,12 @@ generate-mocks: ## Generate mocks from interfaces
 	@mkdir -p internal/mocks
 	mockery --config .mockery.yaml
 	@echo "Mocks generated successfully!"
+
+generate-docs: ## Generate Swagger documentation
+	@echo "Generating API documentation..."
+	@which swag > /dev/null || (echo "Installing swag..." && go install github.com/swaggo/swag/cmd/swag@latest)
+	@mkdir -p docs
+	swag init -g cmd/server/main.go -o docs --pd
+	@echo "API documentation generated successfully!"
 
 .DEFAULT_GOAL := help
