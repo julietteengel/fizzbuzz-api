@@ -1,7 +1,10 @@
 package service
 
-import "github.com/julietteengel/fizzbuzz-api/internal/model"
+import (
+	"context"
+	"github.com/julietteengel/fizzbuzz-api/internal/model"
+)
 
-type FizzBuzzService interface {
-	GenerateFizzBuzz(request model.FizzBuzzRequest) (*model.FizzBuzzResponse, error)
+type IFizzBuzzService interface {
+	GenerateFizzBuzz(ctx context.Context, request model.FizzBuzzRequest) (*model.FizzBuzzResponse, error)
 }

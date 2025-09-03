@@ -12,10 +12,10 @@ import (
 )
 
 type FizzBuzzController struct {
-	service service.FizzBuzzService
+	service service.IFizzBuzzService
 }
 
-func NewFizzBuzzController(service service.FizzBuzzService) *FizzBuzzController {
+func NewFizzBuzzController(service service.IFizzBuzzService) *FizzBuzzController {
 	return &FizzBuzzController{
 		service: service,
 	}
@@ -50,7 +50,7 @@ func (c *FizzBuzzController) GenerateFizzBuzz(ctx echo.Context) error {
 		return c.handleError(ctx, errors.ValidationStr2Error, lang)
 	}
 
-	response, err := c.service.GenerateFizzBuzz(request)
+	response, err := c.service.GenerateFizzBuzz(ctx.Request().Context(), request)
 	if err != nil {
 		return c.handleError(ctx, errors.ServiceError, lang)
 	}

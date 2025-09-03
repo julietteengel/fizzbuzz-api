@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -9,11 +10,11 @@ import (
 
 type fizzBuzzService struct{}
 
-func NewFizzBuzzService() FizzBuzzService {
+func NewFizzBuzzService() IFizzBuzzService {
 	return &fizzBuzzService{}
 }
 
-func (s *fizzBuzzService) GenerateFizzBuzz(request model.FizzBuzzRequest) (*model.FizzBuzzResponse, error) {
+func (s *fizzBuzzService) GenerateFizzBuzz(ctx context.Context, request model.FizzBuzzRequest) (*model.FizzBuzzResponse, error) {
 	if request.Limit <= 0 {
 		return nil, fmt.Errorf("limit must be greater than 0")
 	}
