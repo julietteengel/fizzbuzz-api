@@ -107,4 +107,11 @@ install-tools: ## Install development tools
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	go install github.com/vektra/mockery/v2@latest
 
+generate-mocks: ## Generate mocks from interfaces
+	@echo "Generating mocks..."
+	@which mockery > /dev/null || (echo "Installing mockery..." && go install github.com/vektra/mockery/v2@latest)
+	@mkdir -p internal/mocks
+	mockery --config .mockery.yaml
+	@echo "Mocks generated successfully!"
+
 .DEFAULT_GOAL := help

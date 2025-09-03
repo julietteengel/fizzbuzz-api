@@ -1,0 +1,17 @@
+packages:
+  github.com/julietteengel/fizzbuzz-api/internal/repository:
+    interfaces:
+      IStatsRepository:
+        config:
+          dir: "internal/mocks"
+          filename: "mock_stats_repository.go"
+  github.com/julietteengel/fizzbuzz-api/internal/service:
+    interfaces:
+      IFizzBuzzService:
+        config:
+          dir: "internal/mocks"
+          filename: "mock_fizzbuzz_service.go"
+      IStatsService:
+        config:
+          dir: "internal/mocks"
+          filename: "mock_stats_service.go"
