@@ -8,7 +8,7 @@ import (
 
 	"github.com/julietteengel/fizzbuzz-api/internal/model"
 	"github.com/julietteengel/fizzbuzz-api/internal/service"
-	"github.com/julietteengel/fizzbuzz-api/pkg/errors"
+	"github.com/julietteengel/fizzbuzz-api/common/errors"
 )
 
 type FizzBuzzController struct {
