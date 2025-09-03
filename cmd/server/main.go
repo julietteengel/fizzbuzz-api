@@ -28,7 +28,6 @@ func main() {
 
 func newEcho() *echo.Echo {
 	e := echo.New()
-	e.HideBanner = true
 
 	// Middleware
 	e.Use(middleware.Logger())
@@ -54,16 +53,11 @@ func setupRoutes(
 
 	// Server lifecycle
 	port := ":" + cfg.Server.Port
-	server := &http.Server{
-		Addr:    port,
-		Handler: e,
-	}
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			fmt.Printf("Starting %s server on port %s\n", cfg.App.Environment, port)
 			go func() {
-				if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				if err := e.Start(port); err != nil && err != http.ErrServerClosed {
 					fmt.Printf("Failed to start server: %v\n", err)
 				}
 			}()
@@ -71,7 +65,7 @@ func setupRoutes(
 		},
 		OnStop: func(ctx context.Context) error {
 			fmt.Println("Shutting down server...")
-			return server.Shutdown(ctx)
+			return e.Shutdown(ctx)
 		},
 	})
 }

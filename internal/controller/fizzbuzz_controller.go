@@ -23,52 +23,40 @@ func NewFizzBuzzController(service service.IFizzBuzzService) *FizzBuzzController
 
 func (c *FizzBuzzController) GenerateFizzBuzz(ctx echo.Context) error {
 	var request model.FizzBuzzRequest
-	lang := ctx.Request().Header.Get("Accept-Language")
 
 	if err := ctx.Bind(&request); err != nil {
-		return c.handleError(ctx, errors.InvalidRequestError, lang)
+		return errors.WrapErrorHTTP(ctx, err, errors.InvalidRequestError)
 	}
 
 	// Validation
 	if request.Int1 <= 0 {
-		return c.handleError(ctx, errors.ValidationInt1Error, lang)
+		return errors.WrapErrorHTTP(ctx, nil, errors.ValidationInt1Error)
 	}
 
 	if request.Int2 <= 0 {
-		return c.handleError(ctx, errors.ValidationInt2Error, lang)
+		return errors.WrapErrorHTTP(ctx, nil, errors.ValidationInt2Error)
 	}
 
 	if request.Limit <= 0 || request.Limit > 10000 {
-		return c.handleError(ctx, errors.ValidationLimitError, lang)
+		return errors.WrapErrorHTTP(ctx, nil, errors.ValidationLimitError)
 	}
 
 	if len(request.Str1) == 0 || len(request.Str1) > 100 {
-		return c.handleError(ctx, errors.ValidationStr1Error, lang)
+		return errors.WrapErrorHTTP(ctx, nil, errors.ValidationStr1Error)
 	}
 
 	if len(request.Str2) == 0 || len(request.Str2) > 100 {
-		return c.handleError(ctx, errors.ValidationStr2Error, lang)
+		return errors.WrapErrorHTTP(ctx, nil, errors.ValidationStr2Error)
 	}
 
 	response, err := c.service.GenerateFizzBuzz(ctx.Request().Context(), request)
 	if err != nil {
-		return c.handleError(ctx, errors.ServiceError, lang)
+		return errors.WrapErrorHTTP(ctx, err, errors.ServiceError)
 	}
 
 	return ctx.JSON(http.StatusOK, response)
 }
 
-func (c *FizzBuzzController) handleError(ctx echo.Context, err errors.ControllerError, lang string) error {
-	message := err.Translation.En
-	if lang == "fr" || lang == "fr-FR" {
-		message = err.Translation.Fr
-	}
-
-	return ctx.JSON(err.HttpErrorCode, model.ErrorResponse{
-		Error:   err.Name,
-		Message: message,
-	})
-}
 
 func (c *FizzBuzzController) HealthCheck(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, model.HealthCheckResponse{
