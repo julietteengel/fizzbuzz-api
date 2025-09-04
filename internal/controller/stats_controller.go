@@ -6,7 +6,6 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/julietteengel/fizzbuzz-api/common/errors"
-	"github.com/julietteengel/fizzbuzz-api/internal/model"
 	"github.com/julietteengel/fizzbuzz-api/internal/service"
 )
 
