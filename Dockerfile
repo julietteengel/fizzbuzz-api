@@ -10,12 +10,11 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Install swag and generate documentation
-RUN go install github.com/swaggo/swag/cmd/swag@latest
-RUN make generate-docs
+# Copy pre-generated documentation
+COPY docs ./docs
 
 # Build the application
-RUN go build -o fizzbuzz-api ./cmd/server/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o fizzbuzz-api ./cmd/server/main.go
 
 # Production stage  
 FROM alpine:latest
