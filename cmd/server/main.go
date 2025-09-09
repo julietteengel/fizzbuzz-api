@@ -29,8 +29,8 @@ import (
 // @schemes http https
 
 func main() {
-	fx.New(
-		fx.Provide(
+	fx.New( //creates and initializes an App
+		fx.Provide( // registers any number of constructor functions, teaching the application how to instantiate various types.
 			config.Load,
 			database.NewGormDB,
 			repository.NewStatsRepository,
@@ -40,18 +40,18 @@ func main() {
 			controller.NewStatsController,
 			newEcho,
 		),
-		fx.Invoke(setupRoutes),
+		fx.Invoke(setupRoutes), //Invoke registers functions that are executed eagerly on application start.
 	).Run()
 }
 
 func newEcho() *echo.Echo {
 	e := echo.New()
 
-	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
-	e.Use(middleware.RequestID())
+	//1. Middleware Stack:
+	e.Use(middleware.Logger())    // Logs every request
+	e.Use(middleware.Recover())   // Prevents crashes
+	e.Use(middleware.CORS())      // Browser compatibility
+	e.Use(middleware.RequestID()) // Request tracing
 
 	return e
 }
@@ -64,10 +64,11 @@ func setupRoutes(
 	statsController *controller.StatsController,
 ) {
 	// API Routes
-	api := e.Group("/api/v1")
+	//2. Route Grouping:
+	api := e.Group("/api/v1") // Prefix all API routes
 	api.POST("/fizzbuzz", fizzBuzzController.GenerateFizzBuzz)
 	api.GET("/stats", statsController.GetStats)
-	
+
 	// Health check (outside API group)
 	e.GET("/health", fizzBuzzController.HealthCheck)
 
@@ -85,7 +86,7 @@ func setupRoutes(
 		},
 		OnStop: func(ctx context.Context) error {
 			fmt.Println("Shutting down server...")
-			return e.Shutdown(ctx)
+			return e.Shutdown(ctx) // Properly close connections
 		},
 	})
 }

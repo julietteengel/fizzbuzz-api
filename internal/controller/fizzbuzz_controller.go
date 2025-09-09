@@ -6,9 +6,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	"github.com/julietteengel/fizzbuzz-api/common/errors"
 	"github.com/julietteengel/fizzbuzz-api/internal/model"
 	"github.com/julietteengel/fizzbuzz-api/internal/service"
-	"github.com/julietteengel/fizzbuzz-api/common/errors"
 )
 
 type FizzBuzzController struct {
@@ -35,7 +35,8 @@ func NewFizzBuzzController(service service.IFizzBuzzService) *FizzBuzzController
 func (c *FizzBuzzController) GenerateFizzBuzz(ctx echo.Context) error {
 	var request model.FizzBuzzRequest
 
-	if err := ctx.Bind(&request); err != nil {
+	if err := ctx.Bind(&request); // Automatically parse JSON to struct
+		err != nil {
 		return errors.WrapErrorHTTP(ctx, err, errors.InvalidRequestError)
 	}
 
@@ -67,7 +68,6 @@ func (c *FizzBuzzController) GenerateFizzBuzz(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, response)
 }
-
 
 // HealthCheck returns the health status of the API.
 // @Summary Health check endpoint
