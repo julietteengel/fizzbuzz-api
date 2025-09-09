@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: fizzbuzz-postgres-dev
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts
+    environment:
+      POSTGRES_DB: fizzbuzz_dev
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev123
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d fizzbuzz_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

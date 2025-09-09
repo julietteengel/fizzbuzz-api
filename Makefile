@@ -16,12 +16,26 @@ help: ## Show this help message
 
 ##@ Development
 
-run: ## Run the application locally
+run: ## Run the application locally (memory storage)
 	$(GO) run cmd/server/main.go
+
+run-dev: ## Run with PostgreSQL dev database
+	@echo "Starting PostgreSQL development database..."
+	docker-compose -f docker-compose.dev.yml up -d postgres-dev
+	@echo "Waiting for database to be ready..."
+	@until docker-compose -f docker-compose.dev.yml exec postgres-dev pg_isready -U dev -d fizzbuzz_dev; do sleep 1; done
+	@echo "Loading development environment..."
+	@set -a && . .env.development && set +a && $(GO) run cmd/server/main.go
 
 dev: ## Run with hot reload (requires air)
 	@which air > /dev/null || (echo "Installing air..." && go install github.com/cosmtrek/air@latest)
 	air
+
+dev-db: ## Run with hot reload and PostgreSQL
+	@echo "Starting PostgreSQL development database..."
+	docker-compose -f docker-compose.dev.yml up -d postgres-dev
+	@which air > /dev/null || (echo "Installing air..." && go install github.com/cosmtrek/air@latest)
+	@set -a && . .env.development && set +a && air
 
 build: ## Build the application binary
 	$(GO) build $(GOFLAGS) -o bin/$(APP_NAME) cmd/server/main.go
@@ -84,11 +98,21 @@ docker-push: ## Push Docker image to registry
 
 ##@ Database
 
-migrate-up: ## Run database migrations up
-	@echo "No migrations yet"
+db-start: ## Start PostgreSQL development database
+	docker-compose -f docker-compose.dev.yml up -d postgres-dev
 
-migrate-down: ## Run database migrations down
-	@echo "No migrations yet"
+db-stop: ## Stop PostgreSQL development database
+	docker-compose -f docker-compose.dev.yml down
+
+db-reset: ## Reset development database (WARNING: deletes all data)
+	docker-compose -f docker-compose.dev.yml down -v
+	docker-compose -f docker-compose.dev.yml up -d postgres-dev
+
+db-logs: ## Show database logs
+	docker-compose -f docker-compose.dev.yml logs -f postgres-dev
+
+db-connect: ## Connect to development database
+	docker-compose -f docker-compose.dev.yml exec postgres-dev psql -U dev -d fizzbuzz_dev
 
 ##@ Deployment
 
