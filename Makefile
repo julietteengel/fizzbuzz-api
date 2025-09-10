@@ -19,13 +19,22 @@ help: ## Show this help message
 run: ## Run the application locally (memory storage)
 	$(GO) run cmd/server/main.go
 
-run-dev: ## Run with PostgreSQL dev database
+run-dev: ## Run with PostgreSQL dev database (no hot reload)
 	@echo "Starting PostgreSQL development database..."
 	docker-compose -f docker-compose.dev.yml up -d postgres-dev
 	@echo "Waiting for database to be ready..."
 	@until docker-compose -f docker-compose.dev.yml exec postgres-dev pg_isready -U dev -d fizzbuzz_dev; do sleep 1; done
 	@echo "Loading development environment..."
 	@set -a && . .env.development && set +a && $(GO) run cmd/server/main.go
+
+run-dev-air: ## Run with PostgreSQL dev database and hot reload
+	@echo "Starting PostgreSQL development database..."
+	docker-compose -f docker-compose.dev.yml up -d postgres-dev
+	@echo "Waiting for database to be ready..."
+	@until docker-compose -f docker-compose.dev.yml exec postgres-dev pg_isready -U dev -d fizzbuzz_dev; do sleep 1; done
+	@which air > /dev/null || (echo "Installing air..." && go install github.com/cosmtrek/air@latest)
+	@echo "Loading development environment and starting with hot reload..."
+	@set -a && . .env.development && set +a && air
 
 dev: ## Run with hot reload (requires air)
 	@which air > /dev/null || (echo "Installing air..." && go install github.com/cosmtrek/air@latest)

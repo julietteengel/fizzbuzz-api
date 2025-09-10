@@ -35,28 +35,27 @@ func NewFizzBuzzController(service service.IFizzBuzzService) *FizzBuzzController
 func (c *FizzBuzzController) GenerateFizzBuzz(ctx echo.Context) error {
 	var request model.FizzBuzzRequest
 
-	if err := ctx.Bind(&request); // Automatically parse JSON to struct
-		err != nil {
+	if err := ctx.Bind(&request); err != nil {
 		return errors.WrapErrorHTTP(ctx, err, errors.InvalidRequestError)
 	}
 
-	// Validation
+	// Validation spécifique par champ
 	if request.Int1 <= 0 {
 		return errors.WrapErrorHTTP(ctx, nil, errors.ValidationInt1Error)
 	}
-
+	
 	if request.Int2 <= 0 {
 		return errors.WrapErrorHTTP(ctx, nil, errors.ValidationInt2Error)
 	}
-
+	
 	if request.Limit <= 0 || request.Limit > 10000 {
 		return errors.WrapErrorHTTP(ctx, nil, errors.ValidationLimitError)
 	}
-
+	
 	if len(request.Str1) == 0 || len(request.Str1) > 100 {
 		return errors.WrapErrorHTTP(ctx, nil, errors.ValidationStr1Error)
 	}
-
+	
 	if len(request.Str2) == 0 || len(request.Str2) > 100 {
 		return errors.WrapErrorHTTP(ctx, nil, errors.ValidationStr2Error)
 	}

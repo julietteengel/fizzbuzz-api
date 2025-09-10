@@ -31,11 +31,11 @@ func NewStatsController(service service.IStatsService) *StatsController {
 func (c *StatsController) GetStats(ctx echo.Context) error {
 	stats, err := c.service.GetMostFrequent(ctx.Request().Context())
 	if err != nil {
-		return errors.WrapErrorHTTP(ctx, err, errors.ServiceError)
+		return errors.WrapErrorHTTP(ctx, err, errors.StatsRetrievalError)
 	}
 
 	if stats == nil {
-		return ctx.NoContent(http.StatusNoContent)
+		return errors.WrapErrorHTTP(ctx, nil, errors.StatsNotFoundError)
 	}
 
 	return ctx.JSON(http.StatusOK, stats)

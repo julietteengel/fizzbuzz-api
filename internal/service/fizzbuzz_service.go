@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/julietteengel/fizzbuzz-api/internal/model"
@@ -24,18 +23,6 @@ func NewFizzBuzzService(statsRepo repository.IStatsRepository) IFizzBuzzService 
 }
 
 func (s *fizzBuzzService) GenerateFizzBuzz(ctx context.Context, request model.FizzBuzzRequest) (*model.FizzBuzzResponse, error) {
-	if request.Limit <= 0 {
-		return nil, fmt.Errorf("limit must be greater than 0")
-	}
-
-	if request.Int1 <= 0 || request.Int2 <= 0 {
-		return nil, fmt.Errorf("int1 and int2 must be greater than 0")
-	}
-
-	if request.Str1 == "" || request.Str2 == "" {
-		return nil, fmt.Errorf("str1 and str2 cannot be empty")
-	}
-
 	result := make([]string, 0, request.Limit)
 
 	for i := 1; i <= request.Limit; i++ {
