@@ -19,9 +19,14 @@ type IStatsRepository interface {
 
 type statsRepository struct {
 	db        *gorm.DB
-	memStats  map[string]*model.StatsEntry
+	memStats  map[string]*model.StatsEntry // ⚠️ PROBLÈME: Map grandit indéfiniment = fuite mémoire
 	memMutex  sync.RWMutex
 	useMemory bool
+
+	// AMÉLIORATION: Ajouter ces champs pour éviter les fuites mémoire
+	// maxEntries int                    // Limite max d'entrées (ex: 10000)
+	// cleanupTicker *time.Ticker        // Nettoyage périodique des anciennes entrées
+	// entryTTL time.Duration            // TTL pour expirer les entrées (ex: 24h)
 }
 
 func NewStatsRepository(database *gorm.DB, cfg *config.Config) IStatsRepository {
@@ -30,9 +35,18 @@ func NewStatsRepository(database *gorm.DB, cfg *config.Config) IStatsRepository 
 		db:        database,
 		memStats:  make(map[string]*model.StatsEntry),
 		useMemory: useMemory,
-	}
-}
 
+		// AMÉLIORATION: Initialiser la protection contre les fuites mémoire
+		// maxEntries:    10000,                    // Limite à 10k entrées
+		// entryTTL:      24 * time.Hour,           // Expirer après 24h
+		// cleanupTicker: time.NewTicker(1 * time.Hour), // Cleanup toutes les heures
+	}
+
+	// AMÉLIORATION: Démarrer le nettoyage périodique
+	// if useMemory {
+	//     go repo.startPeriodicCleanup()
+	// }
+}
 
 func (r *statsRepository) RecordRequest(ctx context.Context, request model.FizzBuzzRequest) error {
 	if r.useMemory {
@@ -49,14 +63,20 @@ func (r *statsRepository) GetMostFrequent(ctx context.Context) (*model.StatsResp
 }
 
 func (r *statsRepository) recordInMemory(request model.FizzBuzzRequest) error {
-	r.memMutex.Lock()
-	defer r.memMutex.Unlock()
+	r.memMutex.Lock()         //Exclusif, bloque TOUT (lecteurs + écrivains): L'enregistrement des stats bloque temporairement les lectures
+	defer r.memMutex.Unlock() // S'exécute automatiquement à la fin, même si une erreur survient, unlock() sera appelé
+
+	// AMÉLIORATION: Vérifier la limite avant d'ajouter une nouvelle entrée
+	// if len(r.memStats) >= r.maxEntries {
+	//     r.evictOldestEntry() // Supprimer la plus ancienne entrée
+	// }
 
 	key := r.generateKey(request)
 	if entry, exists := r.memStats[key]; exists {
 		entry.HitCount++
 		entry.UpdatedAt = time.Now()
 	} else {
+		// PROBLÈME: Nouvelle entrée sans limite = fuite mémoire potentielle
 		r.memStats[key] = &model.StatsEntry{
 			Int1:      request.Int1,
 			Int2:      request.Int2,
@@ -71,8 +91,21 @@ func (r *statsRepository) recordInMemory(request model.FizzBuzzRequest) error {
 	return nil
 }
 
+// 💡 AMÉLIORATION: Fonctions pour éviter les fuites mémoire
+// func (r *statsRepository) cleanupExpiredEntries() {
+//     r.memMutex.Lock()
+//     defer r.memMutex.Unlock()
+//
+//     now := time.Now()
+//     for key, entry := range r.memStats {
+//         if now.Sub(entry.UpdatedAt) > r.entryTTL {
+//             delete(r.memStats, key) // Supprimer les entrées expirées
+//         }
+//     }
+// }
+
 func (r *statsRepository) getMostFrequentFromMemory() (*model.StatsResponse, error) {
-	r.memMutex.RLock()
+	r.memMutex.RLock() //Partagé entre lecteurs, mais bloqué par écrivains, plusieurs utilisateurs peuvent consulter /stats en même temps
 	defer r.memMutex.RUnlock()
 
 	var mostFrequent *model.StatsEntry
@@ -99,7 +132,10 @@ func (r *statsRepository) getMostFrequentFromMemory() (*model.StatsResponse, err
 }
 
 func (r *statsRepository) recordInDatabase(ctx context.Context, request model.FizzBuzzRequest) error {
+	// PB sans transaction: si 2 requêtes simultanées avec les mêmes paramètres int1=3, int2=5, limit=15, str1="fizz", str2="buzz" :
+	// Problème : Les deux threads lisent la même ancienne valeur avant que l'autre ait fini sa mise à jour.
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// DÉBUT DE TRANSACTION - PostgreSQL pose un LOCK, donc requete B doit attendre la fin de A donc pas de pb de concurrence
 		entry := model.StatsEntry{
 			Int1:  request.Int1,
 			Int2:  request.Int2,
