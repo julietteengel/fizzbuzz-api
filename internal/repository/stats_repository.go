@@ -99,25 +99,27 @@ func (r *statsRepository) getMostFrequentFromMemory() (*model.StatsResponse, err
 }
 
 func (r *statsRepository) recordInDatabase(ctx context.Context, request model.FizzBuzzRequest) error {
-	entry := model.StatsEntry{
-		Int1:  request.Int1,
-		Int2:  request.Int2,
-		Limit: request.Limit,
-		Str1:  request.Str1,
-		Str2:  request.Str2,
-	}
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		entry := model.StatsEntry{
+			Int1:  request.Int1,
+			Int2:  request.Int2,
+			Limit: request.Limit,
+			Str1:  request.Str1,
+			Str2:  request.Str2,
+		}
 
-	result := r.db.WithContext(ctx).Where(&entry).First(&entry)
-	if result.Error == gorm.ErrRecordNotFound {
-		entry.HitCount = 1
-		return r.db.WithContext(ctx).Create(&entry).Error
-	}
-	if result.Error != nil {
-		return result.Error
-	}
+		result := tx.Where(&entry).First(&entry)
+		if result.Error == gorm.ErrRecordNotFound {
+			entry.HitCount = 1
+			return tx.Create(&entry).Error
+		}
+		if result.Error != nil {
+			return result.Error
+		}
 
-	entry.HitCount++
-	return r.db.WithContext(ctx).Save(&entry).Error
+		entry.HitCount++
+		return tx.Save(&entry).Error
+	})
 }
 
 func (r *statsRepository) getMostFrequentFromDatabase(ctx context.Context) (*model.StatsResponse, error) {
